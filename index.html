@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Temple VR Walkthrough</title>
+    <!-- A-Frame VR Framework -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <!-- A-Frame Look-At Component -->
+    <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
+    <!-- WebXR Polyfill for better VR Box/Cardboard support -->
+    <script src="https://cdn.jsdelivr.net/npm/webxr-polyfill@latest/build/webxr-polyfill.js"></script>
+    <script>const polyfill = new WebXRPolyfill();</script>
+    
+    <link rel="stylesheet" href="style.css">
+    <script src="app.js"></script>
+<body>
+
+    <!-- Audio Element (Ambient specific) -->
+    <audio id="ambient-audio" src="assets/temple-bells.mp3" loop preload="auto"></audio>
+
+    <!-- Top UI Nav Bar -->
+    <div id="top-nav">
+        <button id="menu-btn" class="ui-btn">☰ Menu</button>
+        <button id="vr-btn" class="ui-btn highlight">👓 VR Mode</button>
+        <button id="audio-btn" class="ui-btn">🔇 Audio Off</button>
+        <button id="fullscreen-btn" class="ui-btn">⛶ Fullscreen</button>
+    </div>
+
+    <!-- Side Navigation Menu -->
+    <div id="side-menu" class="hidden">
+        <button id="close-menu">×</button>
+        <h2>Locations</h2>
+        <ul id="location-list">
+            <li data-target="entrance">1. Entrance</li>
+            <li data-target="left1">2. Left Path 1</li>
+            <li data-target="main8">3. Main Hall</li>
+            <li data-target="god">4. Deity</li>
+        </ul>
+    </div>
+
+    <!-- UI Overlay: Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader-content">
+            <h1>Temple VR Walkthrough</h1>
+            <p>Loading immersive experience...</p>
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <!-- UI Overlay: Information Panel -->
+    <div id="info-panel" class="hidden">
+        <h2 id="info-title">Entrance</h2>
+        <p id="info-desc">Welcome. Look for the arrows to move.</p>
+    </div>
+
+    <!-- UI Overlay: Controls Hint -->
+    <div id="controls-hint">
+        <p><strong>Desktop:</strong> Click and drag to look. <strong>Mobile/VR:</strong> Move device to look.<br>Use arrows or the Menu to navigate. Click (i) icons for info.</p>
+    </div>
+
+    <!-- Information Modal Popup -->
+    <div id="info-modal" class="hidden">
+        <button id="close-modal">×</button>
+        <h2 id="modal-title">Info</h2>
+        <img id="modal-img" src="" alt="Artifact Image" class="hidden">
+        <p id="modal-desc">Details go here.</p>
+    </div>
+
+    <!-- A-Frame Scene -->
+    <a-scene loading-manager vr-mode-ui="enabled: true">
+        <!-- Assets Management -->
+        <a-assets timeout="60000">
+            <!-- 8K Textures -->
+            <img id="entrance" src="assets/entrance.jpg">
+            <img id="left1" src="assets/left1.jpg">
+            <img id="left3" src="assets/left3.jpg">
+            <img id="left4" src="assets/left4.jpg">
+            <img id="left5" src="assets/left5.jpg">
+            <img id="right6" src="assets/right6.jpg">
+            <img id="right7" src="assets/right7.jpg">
+            <img id="main8" src="assets/main8.jpg">
+            <img id="god" src="assets/god9.jpg">
+            
+            <!-- Hotspot Icons: Point -->
+            <img id="point-nav" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='30' fill='rgba(255,255,255,0.8)' stroke='rgba(0,0,0,0.5)' stroke-width='4'/><circle cx='50' cy='50' r='10' fill='black'/></svg>">
+            
+            <!-- Directional Arrows -->
+            <img id="arrow-up" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 10 L90 50 L70 50 L70 90 L30 90 L30 50 L10 50 Z' fill='white' stroke='black' stroke-width='2'/></svg>">
+            <img id="arrow-down" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 90 L10 50 L30 50 L30 10 L70 10 L70 50 L90 50 Z' fill='white' stroke='black' stroke-width='2'/></svg>">
+            <img id="arrow-left" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M10 50 L50 90 L50 70 L90 70 L90 30 L50 30 L50 10 Z' fill='white' stroke='black' stroke-width='2'/></svg>">
+            <img id="arrow-right" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M90 50 L50 10 L50 30 L10 30 L10 70 L50 70 L50 90 Z' fill='white' stroke='black' stroke-width='2'/></svg>">
+            
+            <!-- Info Icon -->
+            <img id="info-icon" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='100' height='100'><circle cx='12' cy='12' r='11' fill='rgba(255,255,255,0.8)' stroke='rgb(0,100,255)' stroke-width='2'/><text x='12' y='16' font-family='Arial' font-size='14' font-weight='bold' text-anchor='middle' fill='rgb(0,100,255)'>i</text></svg>">
+        </a-assets>
+
+        <!-- Environment: The 360 Sky -->
+        <a-sky id="vr-sky" src="#entrance" rotation="0 -90 0" 
+               animation__fade="property: material.color; type: color; startEvents: fade-out; dur: 500; from: #FFF; to: #000" 
+               animation__fadein="property: material.color; type: color; startEvents: fade-in; dur: 500; from: #000; to: #FFF"></a-sky>
+
+        <!-- Hotspots and Info Points Container -->
+        <a-entity id="hotspots-container"></a-entity>
+
+        <!-- Camera Rig with Cursor for interaction -->
+        <a-entity id="rig" position="0 0 0">
+            <a-camera look-controls="magicWindowTrackingEnabled: true; touchEnabled: true; mouseEnabled: true" auto-rotate="speed: 0.03; enabled: true">
+                <a-entity cursor="rayOrigin: mouse;" raycaster="objects: .clickable"></a-entity>
+                <!-- VR Headset reticle (visible in VR mode or when pointer lock is on) -->
+                <a-entity id="vr-cursor" cursor="fuse: true; fuseTimeout: 1500"
+                          position="0 0 -1"
+                          geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+                          material="color: white; shader: flat; opacity: 0.7"
+                          raycaster="objects: .clickable"
+                          visible="false"
+                          animation__click="property: scale; startEvents: click; easing: easeInCubic; dur: 150; from: 0.1 0.1 0.1; to: 1 1 1"
+                          animation__fuse="property: scale; startEvents: fusing; easing: easeInCubic; dur: 1500; from: 1 1 1; to: 0.1 0.1 0.1"
+                          animation__mouseleave="property: scale; startEvents: mouseleave; easing: easeInCubic; dur: 500; to: 1 1 1">
+                </a-entity>
+            </a-camera>
+        </a-entity>
+    </a-scene>
+
+</body>
+</html>
