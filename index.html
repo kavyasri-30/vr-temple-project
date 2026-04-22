@@ -9,32 +9,54 @@
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
 
-    <style>
-        body { margin: 0; overflow: hidden; }
-        #loading {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: black;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 20px;
-            z-index: 10;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <script src="app.js"></script>
 </head>
 
 <body>
 
-<div id="loading">Loading VR...</div>
+<!-- TOP NAV -->
+<div id="top-nav">
+    <button id="menu-btn">☰ Menu</button>
+    <button id="vr-btn">VR Mode</button>
+    <button id="fullscreen-btn">Fullscreen</button>
+</div>
 
-<a-scene>
+<!-- SIDE MENU -->
+<div id="side-menu" class="hidden">
+    <button id="close-menu">×</button>
+    <h2>Locations</h2>
+    <ul id="location-list">
+        <li data-target="entrance">Entrance</li>
+        <li data-target="left1">Left Path</li>
+        <li data-target="main8">Main Hall</li>
+    </ul>
+</div>
 
-    <!-- IMAGES (NO assets/) -->
+<!-- LOADING -->
+<div id="loading-screen">
+    <h1>Temple VR Walkthrough</h1>
+    <p>Loading immersive experience...</p>
+</div>
+
+<!-- INFO PANEL -->
+<div id="info-panel">
+    <h2 id="info-title"></h2>
+    <p id="info-desc"></p>
+</div>
+
+<!-- MODAL -->
+<div id="info-modal" class="hidden">
+    <button id="close-modal">×</button>
+    <h2 id="modal-title"></h2>
+    <img id="modal-img" class="hidden">
+    <p id="modal-desc"></p>
+</div>
+
+<!-- SCENE -->
+<a-scene loading-manager>
+
+    <!-- FIXED IMAGES -->
     <a-assets>
         <img id="entrance" src="entrance.jpg">
         <img id="left1" src="left1.jpg">
@@ -44,85 +66,31 @@
         <img id="right6" src="right6.jpg">
         <img id="right7" src="right7.jpg">
         <img id="main8" src="main8.jpg">
+        <img id="god" src="god9.jpg">
+
+        <!-- ICONS -->
+        <img id="point-nav" src="https://cdn-icons-png.flaticon.com/512/684/684908.png">
+        <img id="arrow-up" src="https://cdn-icons-png.flaticon.com/512/271/271228.png">
+        <img id="arrow-down" src="https://cdn-icons-png.flaticon.com/512/271/271210.png">
+        <img id="arrow-left" src="https://cdn-icons-png.flaticon.com/512/271/271220.png">
+        <img id="arrow-right" src="https://cdn-icons-png.flaticon.com/512/271/271228.png">
+        <img id="info-icon" src="https://cdn-icons-png.flaticon.com/512/1828/1828817.png">
     </a-assets>
 
     <!-- SKY -->
-    <a-sky id="sky" src="#entrance"></a-sky>
+    <a-sky id="vr-sky" src="#entrance"></a-sky>
 
     <!-- HOTSPOTS -->
-    <a-entity id="hotspots"></a-entity>
+    <a-entity id="hotspots-container"></a-entity>
 
     <!-- CAMERA -->
-    <a-camera position="0 1.6 0">
-        <a-cursor></a-cursor>
-    </a-camera>
+    <a-entity id="rig">
+        <a-camera look-controls>
+            <a-cursor></a-cursor>
+        </a-camera>
+    </a-entity>
 
 </a-scene>
-
-<script>
-const scenes = {
-    entrance: [
-        { target: "left1", position: "-1 1 -3" }
-    ],
-    left1: [
-        { target: "left3", position: "-1 1 -3" },
-        { target: "entrance", position: "1 1 -3" }
-    ],
-    left3: [
-        { target: "left4", position: "-1 1 -3" },
-        { target: "left1", position: "1 1 -3" }
-    ],
-    left4: [
-        { target: "left5", position: "-1 1 -3" },
-        { target: "left3", position: "1 1 -3" }
-    ],
-    left5: [
-        { target: "right6", position: "0 1 -3" },
-        { target: "left4", position: "1 1 -3" }
-    ],
-    right6: [
-        { target: "right7", position: "1 1 -3" },
-        { target: "left5", position: "-1 1 -3" }
-    ],
-    right7: [
-        { target: "main8", position: "1 1 -3" },
-        { target: "right6", position: "-1 1 -3" }
-    ],
-    main8: [
-        { target: "left3", position: "-1 1 -3" },
-        { target: "right7", position: "1 1 -3" }
-    ]
-};
-
-const sky = document.querySelector("#sky");
-const container = document.querySelector("#hotspots");
-
-function loadScene(scene) {
-    sky.setAttribute("src", "#" + scene);
-
-    container.innerHTML = "";
-
-    scenes[scene].forEach(h => {
-        const el = document.createElement("a-sphere");
-        el.setAttribute("position", h.position);
-        el.setAttribute("radius", "0.2");
-        el.setAttribute("color", "red");
-        el.setAttribute("class", "clickable");
-
-        el.addEventListener("click", () => {
-            loadScene(h.target);
-        });
-
-        container.appendChild(el);
-    });
-}
-
-loadScene("entrance");
-
-window.onload = () => {
-    document.getElementById("loading").style.display = "none";
-};
-</script>
 
 </body>
 </html>
